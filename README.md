@@ -17,3 +17,13 @@ and if everything runs OK, you should get images in an `output` directory. Like:
 # Why does this repository exist?
 
 I'm a fan of CLIs and getting things running right away with minimal code. The original dalle-mini repo is great, but I wanted to share something quick & easy for those who just want to use the model.
+
+
+# What is in this project?
+To date, the project contains:
+
+* __`cli.py`__ as a command-line interface for generating images
+* __`sitegen.py`__ as a website generator that uses `template.html` to create a quick website per the specified `output_dir` so you can upload results to a webserver
+
+More to come...
+

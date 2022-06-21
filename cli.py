@@ -21,6 +21,7 @@ from tqdm.notebook import trange
 from flax.training.common_utils import shard
 
 def main(prompt, output_dir="output", run_wandb=False):
+    print(f"Generating image for {prompt}")
     prompts = [ prompt ]        
 
     #DALLE_MODEL = "dalle-mini/dalle-mini/mega-1-fp16:latest"  # can be wandb artifact or 🤗 Hub or local folder or google bucket
@@ -28,6 +29,7 @@ def main(prompt, output_dir="output", run_wandb=False):
 
     # if the notebook crashes too often you can use dalle-mini instead by uncommenting below line
     DALLE_MODEL = "dalle-mini/dalle-mini/mini-1:v0"
+    DALLE_MODEL = "dalle-mini/dalle-mini/mega-1-fp16:latest"
 
     # VQGAN model
     VQGAN_REPO = "dalle-mini/vqgan_imagenet_f16_16384"
@@ -93,6 +95,18 @@ def main(prompt, output_dir="output", run_wandb=False):
     print(f"Prompts: {prompts}\n")
     # generate images
     images = []
+    safeprompt = ""
+    for prompt in prompts:
+        safeprompt = safeprompt + prompt
+
+    safeprompt = safeprompt.replace(" ", "_").replace(",", "").lower().strip()
+    output_dir_ = f'{output_dir}/run_{str(uuid.uuid4())[:5]}_{safeprompt[:20]}'
+    Path(output_dir_).mkdir(parents=True, exist_ok=True)
+
+    with open(f'{output_dir_}/prompt.txt', 'w') as f:
+        for prompt in prompts:
+            f.write(prompt)
+
     for i in trange(max(n_predictions // jax.device_count(), 1)):
         # get a new key
         key, subkey = jax.random.split(key)
@@ -107,7 +121,7 @@ def main(prompt, output_dir="output", run_wandb=False):
             cond_scale,
         )
         
-        Path(output_dir).mkdir(parents=True, exist_ok=True)
+        Path(output_dir_).mkdir(parents=True, exist_ok=True)
         
         # remove BOS
         encoded_images = encoded_images.sequences[..., 1:]
@@ -116,11 +130,11 @@ def main(prompt, output_dir="output", run_wandb=False):
         decoded_images = p_decode(encoded_images, vqgan_params)
         decoded_images = decoded_images.clip(0.0, 1.0).reshape((-1, 256, 256, 3))
         
-        for decoded_img in decoded_images:
+        for j, decoded_img in enumerate(decoded_images):
             img = Image.fromarray(np.asarray(decoded_img * 255, dtype=np.uint8))
             images.append(img)
             #display(img)
-            path = f'{output_dir}/img_{uuid.uuid1()}.png'
+            path = f'{output_dir_}/img_{i}.png'
             img.save(path)
             print(f'Saved to {path=}')
 

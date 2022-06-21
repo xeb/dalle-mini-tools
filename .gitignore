@@ -1,6 +1,15 @@
 # Repo specific things
 img_*.png
 output/
+output_old/
+upload.sh
+gen.sh
+wandb/
+
+# ignore upscaling tools for now
+upscale.sh
+setup_upscale.sh
+Real-ESRGAN
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
