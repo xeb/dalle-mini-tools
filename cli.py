@@ -20,7 +20,7 @@ from PIL import Image
 from tqdm.notebook import trange
 from flax.training.common_utils import shard
 
-def main(prompt, output_dir="output", run_wandb=False):
+def main(prompt, output_dir="output", clip_scores=False):
     print(f"Generating image for {prompt}")
     prompts = [ prompt ]        
 
@@ -67,7 +67,6 @@ def main(prompt, output_dir="output", run_wandb=False):
             condition_scale=condition_scale,
         )
 
-
     # decode image
     @partial(jax.pmap, axis_name="batch")
     def p_decode(indices, params):
@@ -76,7 +75,6 @@ def main(prompt, output_dir="output", run_wandb=False):
     # create a random key
     seed = random.randint(0, 2**32 - 1)
     key = jax.random.PRNGKey(seed)
-
 
     processor = DalleBartProcessor.from_pretrained(DALLE_MODEL, revision=DALLE_COMMIT_ID)
 
@@ -130,80 +128,55 @@ def main(prompt, output_dir="output", run_wandb=False):
         decoded_images = p_decode(encoded_images, vqgan_params)
         decoded_images = decoded_images.clip(0.0, 1.0).reshape((-1, 256, 256, 3))
         
-        for j, decoded_img in enumerate(decoded_images):
+        for decoded_img in decoded_images:
             img = Image.fromarray(np.asarray(decoded_img * 255, dtype=np.uint8))
             images.append(img)
-            #display(img)
             path = f'{output_dir_}/img_{i}.png'
             img.save(path)
             print(f'Saved to {path=}')
 
-    # CLIP model
-    CLIP_REPO = "openai/clip-vit-base-patch32"
-    CLIP_COMMIT_ID = None
+    if clip_scores:
+        # CLIP model
+        CLIP_REPO = "openai/clip-vit-base-patch32"
+        CLIP_COMMIT_ID = None
 
-    # Load CLIP
-    clip, clip_params = FlaxCLIPModel.from_pretrained(
-        CLIP_REPO, revision=CLIP_COMMIT_ID, dtype=jnp.float16, _do_init=False
-    )
-    clip_processor = CLIPProcessor.from_pretrained(CLIP_REPO, revision=CLIP_COMMIT_ID)
-    clip_params = replicate(clip_params)
+        # Load CLIP
+        clip, clip_params = FlaxCLIPModel.from_pretrained(
+            CLIP_REPO, revision=CLIP_COMMIT_ID, dtype=jnp.float16, _do_init=False
+        )
+        clip_processor = CLIPProcessor.from_pretrained(CLIP_REPO, revision=CLIP_COMMIT_ID)
+        clip_params = replicate(clip_params)
 
-    # score images
-    @partial(jax.pmap, axis_name="batch")
-    def p_clip(inputs, params):
-        logits = clip(params=params, **inputs).logits_per_image
-        return logits
+        # score images
+        @partial(jax.pmap, axis_name="batch")
+        def p_clip(inputs, params):
+            logits = clip(params=params, **inputs).logits_per_image
+            return logits
 
-    # get clip scores
-    clip_inputs = clip_processor(
-        text=prompts * jax.device_count(),
-        images=images,
-        return_tensors="np",
-        padding="max_length",
-        max_length=77,
-        truncation=True,
-    ).data
-    logits = p_clip(shard(clip_inputs), clip_params)
+        # get clip scores
+        clip_inputs = clip_processor(
+            text=prompts * jax.device_count(),
+            images=images,
+            return_tensors="np",
+            padding="max_length",
+            max_length=77,
+            truncation=True,
+        ).data
+        logits = p_clip(shard(clip_inputs), clip_params)
 
-    # organize scores per prompt
-    p = len(prompts)
-    logits = np.asarray([logits[:, i::p, i] for i in range(p)]).squeeze()
+        # organize scores per prompt
+        p = len(prompts)
+        logits = np.asarray([logits[:, i::p, i] for i in range(p)]).squeeze()
 
-    # for i, prompt in enumerate(prompts):
-    #     print(f"Prompt: {prompt}\n")
-    #     for idx in logits[i].argsort()[::-1]:
-    #         #display(images[idx * p + i])
-    #         # print(f"Score: {jnp.asarray(logits[i][idx], dtype=jnp.float32):.2f}\n")
-    #     print()
+        # for i, prompt in enumerate(prompts):
+        #     print(f"Prompt: {prompt}\n")
+        #     for idx in logits[i].argsort()[::-1]:
+        #         #display(images[idx * p + i])
+        #         # print(f"Score: {jnp.asarray(logits[i][idx], dtype=jnp.float32):.2f}\n")
+        #     print()
 
-    if run_wandb:
-        # Initialize a W&B run.
-        project = 'dalle-mini-tables-colab'
-        run = wandb.init(project=project)
 
-        # Initialize an empty W&B Tables.
-        columns = ["captions"] + [f"image_{i+1}" for i in range(n_predictions)]
-        gen_table = wandb.Table(columns=columns)
-
-        # Add data to the table.
-        for i, prompt in enumerate(prompts):
-            # If CLIP scores exist, sort the Images
-            if logits is not None:
-                idxs = logits[i].argsort()[::-1]
-                tmp_imgs = images[i::2]
-                tmp_imgs = [tmp_imgs[idx] for idx in idxs]
-            else:
-                tmp_imgs = images[i::2]
-
-            # Add the data to the table.
-            gen_table.add_data(prompt, *[wandb.Image(img) for img in tmp_imgs])
-
-        # Log the Table to W&B dashboard.
-        wandb.log({"Generated Images": gen_table})
-
-        # Close the W&B run.
-        run.finish()
+    return output_dir_
 
 if __name__ == "__main__":
     fire.Fire(main)

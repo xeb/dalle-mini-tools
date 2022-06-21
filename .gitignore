@@ -3,8 +3,10 @@ img_*.png
 output/
 output_old/
 upload.sh
+reverseproxy.sh
 gen.sh
 wandb/
+.fuse_*
 
 # ignore upscaling tools for now
 upscale.sh
