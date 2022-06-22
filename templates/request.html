@@ -5,6 +5,7 @@
         <script type="text/javascript">
             $(function(){
                 $('#warning').hide();
+                $('input[type=submit]').removeAttr('disabled');
                 $('form').submit(function(e){
                     $(this).children('input[type=submit]').attr('disabled', 'disabled');
                     $('#warning').show();
@@ -19,8 +20,8 @@
             meaning it may or may not work depending on if the desktop is online. <br/>
             If you are reading this, it's probably a good sign.</p>
         <form action="/" method="post">
-            <label for="prompt">Prompt:</label>
-            <input type="text" name="prompt" autofocus />
+            <label for="prompt">Prompt:</label><br/>
+            <textarea name="prompt" autofocus cols="75" rows="5"></textarea><br/>
             <input type="submit" value="Generate" />
         </form>
         <br/><br/>

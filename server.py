@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 
 import os
-
-from django.shortcuts import render
-import cli
+import time
 import fire
 from sitegen import get_dir_details
-from flask import Flask, request, render_template, redirect, send_from_directory, has_request_context
+from request import send as send_queue_request
+from flask import Flask, request, render_template, redirect, send_from_directory
 
 flaskapp = Flask("dalle-mini")
 
@@ -18,18 +17,27 @@ def root():
         prompt = request.form.get('prompt')
         print(f"processing {prompt}")
         prompt = prompt.replace(",", " ")
-        rundir = cli.main(prompt)
-        return redirect(f'/{rundir}/index.html')
-
+        rundir = send_queue_request(prompt)
+        return redirect(f'/output/{rundir}/index.html') #TODO: should output be configurable?
 
 @flaskapp.route("/output/<path:path>")
 def output(path):
     print(f"Handling {path=}")
     if os.path.basename(path) == "index.html":
+        run_name = os.path.dirname(path).replace(os.path.basename(path), "")
         ddir = os.path.join('output', os.path.dirname(path))
+        if not os.path.exists(ddir):
+            # Not generated yet, keep waiting
+            return render_template("refresh.html", run_name=run_name)
+
         print(f'Processing {ddir}')
         prompt, imgs = get_dir_details(ddir)
-        return render_template("template.html", prompt=prompt, imgs=imgs)
+        if imgs is None or len(imgs) == 0:
+            print(f"No images found for request path {path}")
+            time.sleep(1)
+            return redirect(f'/output/{path}')
+
+        return render_template("template.html", prompt=prompt, imgs=imgs, expected_img_count=8)
     else:
         return send_from_directory('output', path)
 

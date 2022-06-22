@@ -1,4 +1,16 @@
-<html><body>
+<html>
+<head>
+    <title>dalle-mini-tools Server</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(function(){
+            if({% if imgs|length < expected_img_count %}true{% else %}false{%endif%}){
+                setInterval(function(){ location.reload(); }, 2000);
+            }
+        });
+    </script>
+</head>    
+<body>
 <h1>{{prompt}}</h1>
 {% for img in imgs %}
 <img src="{{ img }}" />

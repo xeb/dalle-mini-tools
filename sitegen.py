@@ -12,8 +12,21 @@ def generate_all(output_dir="output"):
         print(f"Processing {path}")
         if path.is_dir():
             index_content = generate_index(path)
-            with open(f"{path}/index.html", "w") as o:
+            if index_content is None:
+                print("No images in {path}, skipping")
+                continue
+
+            index_path = f"{path}/index.html"
+
+            if os.path.exists(index_path):
+                with open(index_path, "r") as r:
+                    if r.read() == index_content:
+                        print(f"Skipping {path=}, same content")
+                        continue
+
+            with open(index_path, "w") as o:
                 o.write(index_content)
+
             print(f"Wrote {path=}/index.html")
 
 def get_dir_details(path):
@@ -34,7 +47,10 @@ def generate_index(path):
     te = jinja2.Environment(loader=tl)
     template = te.get_template("template.html")
     prompt, imgs = get_dir_details(path)
-    return template.render(prompt=prompt, imgs=imgs)
+    if imgs is None or len(imgs) == 0:
+        return None
+
+    return template.render(prompt=prompt, imgs=imgs, expected_img_count=len(imgs))
 
 if __name__ == "__main__":
     fire.Fire(generate_all)

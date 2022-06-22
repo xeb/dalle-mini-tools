@@ -1,0 +1,18 @@
+<html>
+    <head>
+        <title>dalle-mini-tools Server</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script>
+            $(function(){
+                setInterval(function(){
+                    location.reload();
+                }, 5000);
+            });
+        </script>
+    </head>
+    <body>
+        <h1>Waiting...</h1>
+        <p>Still waiting on "<b><i>{{run_name}}</i></b>" to finish generating (if it was requested at all)...<br/>
+        You can bookmark this URL and come back later.</p>
+    </body>
+</html>

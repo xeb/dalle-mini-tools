@@ -14,17 +14,18 @@ and if everything runs OK, you should get images in an `output` directory. Like:
 
 ![dalle-mini Samples](assets/dalle-mini-samples.png)
 
-# Why does this repository exist?
-
-I'm a fan of CLIs, (and web interfaces, and chat bots, and Alexa skills) and getting things running right away with minimal code. The original dalle-mini repo is great, but I wanted to share something quick & easy for those who just want to use the model through various interfaces. This is all intended for my own synthetic image generation research.
+# Purpose
+This is repository is a collection of tools for doing inference against dalle-mini and dalle-mega.
 
 
 # What is in this project?
 To date, the project contains:
 
-* __`cli.py`__ as a command-line interface for generating images
-* __`sitegen.py`__ as a static website generator that uses `template.html` to create a quick website per the specified `output_dir` so you can upload results to a webserver
-* __`server.py`__ as a server to host the dalle-mini model in a Flask server, super basic.
+* __`generate.py`__ is a command-line interface for generating images. This has no dependencies.
+* __`sitegen.py`__ is a static website generator that uses `templates/template.html` to create index pages per the specified `output_dir` so you can upload results to a webserver
+* __`server.py`__ is a Flask web server to host requests. This depends the `request.py` library and on having a `worker.py` running since requests are queued into an SQS queue.
+* __`worker.py`__ is a worker process that listens to a SQS queue and then runs the model (via `generate.py`)
+* __`request.py`__ is a command-line tool (and library used by `server.py`) for sending requests to the SQS queue. The server depends on this.
 
 More to come...
 
