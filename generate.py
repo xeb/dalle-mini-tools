@@ -68,7 +68,7 @@ class Generator():
         self.cond_scale = 10.0
 
 
-    def generate(self, prompt, output_dir="output", clip_scores=False, run_name=None):
+    def generate(self, prompt, clip_scores=False, run_name=None):
         
         # create these partials within the generation runtime
         # model inference
@@ -108,11 +108,11 @@ class Generator():
 
         if run_name is None:
             time = datetime.now().strftime("%Y%m%d-%H%M%S")
-            safeprompt = safeprompt.replace(" ", "_").replace(",", "").lower().strip()
+            safeprompt = prompt.replace(" ", "_").replace("'","").replace('"','').replace("\n","").replace(",", "").lower().strip()
             run_name = f'run_{time}_{safeprompt[:30]}'
             print(f"Using {run_name=}")
 
-        output_dir_ = f'{output_dir}/{run_name}'
+        output_dir_ = f'{self.output_dir}/{run_name}'
         Path(output_dir_).mkdir(parents=True, exist_ok=True)
 
         with open(f'{output_dir_}/prompt.txt', 'w') as f:
