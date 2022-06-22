@@ -2,11 +2,11 @@
 A (soon-to-be) collection of tools for generating [dalle-mini](https://github.com/borisdayma/dalle-mini) images 
 
 # Installation & Usage
-Install the dependencies, then try out the basebones CLI. Try `python cli.py --help` for options like saving a wandb run.
+Install the dependencies (`pip install -r requirements.txt`), then try out the CLI. Try `python generate.py --help` for more.
 
 ```
 pip install -r requirements.txt
-python cli.py "a man at a computer trying to generate images"
+python generate.py "a man at a computer trying to generate images"
 ```
 
 and if everything runs OK, you should get images in an `output` directory. Like:
@@ -16,7 +16,6 @@ and if everything runs OK, you should get images in an `output` directory. Like:
 
 # Purpose
 This is repository is a collection of tools for doing inference against dalle-mini and dalle-mega.
-
 
 # What is in this project?
 To date, the project contains:
