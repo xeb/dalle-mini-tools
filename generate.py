@@ -11,6 +11,7 @@ from transformers import CLIPProcessor, FlaxCLIPModel
 from flax.jax_utils import replicate
 from functools import partial
 import random
+from slugify import slugify
 from dalle_mini import DalleBartProcessor
 from flax.training.common_utils import shard_prng_key
 import numpy as np
@@ -108,8 +109,8 @@ class Generator():
 
         if run_name is None:
             time = datetime.now().strftime("%Y%m%d-%H%M%S")
-            safeprompt = prompt.replace(" ", "_").replace("'","").replace('"','').replace("\n","").replace(",", "").lower().strip()
-            run_name = f'run_{time}_{safeprompt[:30]}'
+            safeprompt = slugify(prompt, max_length=30, allow_unicode=False, word_boundary=True)
+            run_name = f'run_{time}_{safeprompt}'
             print(f"Using {run_name=}")
 
         output_dir_ = f'{self.output_dir}/{run_name}'

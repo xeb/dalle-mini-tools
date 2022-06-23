@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import fire
+from slugify import slugify
 from datetime import datetime
 from sqs_launcher import SqsLauncher
 
@@ -8,8 +9,8 @@ def send(prompt, queue_name="dalle-mini-tools", region_name="us-east-1"):
     launcher = SqsLauncher(queue_name)
 
     time = datetime.now().strftime("%Y%m%d-%H%M%S")
-    safeprompt = prompt.replace(" ", "_").replace("'","").replace('"','').replace("\n","").replace(",", "").lower().strip()
-    run_name = f'run_{time}_{safeprompt[:30]}'
+    safeprompt = slugify(prompt, max_length=30, allow_unicode=False, word_boundary=True)
+    run_name = f'run_{time}_{safeprompt}'
     print(f"Using {run_name=}")
 
     response = launcher.launch_message({ 'prompt': prompt, 'run_name': run_name })

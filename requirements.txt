@@ -3,3 +3,4 @@ git+https://github.com/patil-suraj/vqgan-jax.git
 fire
 flask
 pySqsListener
+python-slugify
