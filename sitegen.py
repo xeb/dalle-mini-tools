@@ -32,17 +32,17 @@ def generate_all(output_dir="output"):
 def get_dir_details(path):
     prompt_path = f"{path}/prompt.txt"
     if os.path.exists(prompt_path) is False:
-        print("Skipping {path=} because {prompt_path=} does not exist")
+        print(f"Skipping {path=} because {prompt_path=} does not exist")
         return None, None
 
     prompt = ""
     with open(f"{path}/prompt.txt", "r") as rp:
         prompt = rp.read()
 
-    imgs = [ os.path.basename(x) for x in glob.glob(f'{path}/*.png') ]
+    imgs = [ os.path.basename(x) for x in glob.glob(f'{path}/[!f]*.png') ] #a small hack to ignore "final.png"
     return ( prompt, imgs )
 
-def generate_index(path):
+def generate_index(path, show_links=False):
     tl = jinja2.FileSystemLoader(searchpath="./templates")
     te = jinja2.Environment(loader=tl)
     template = te.get_template("template.html")
@@ -50,7 +50,7 @@ def generate_index(path):
     if imgs is None or len(imgs) == 0:
         return None
 
-    return template.render(prompt=prompt, imgs=imgs, expected_img_count=len(imgs))
+    return template.render(prompt=prompt, imgs=imgs, expected_img_count=len(imgs), show_links=show_links)
 
 if __name__ == "__main__":
     fire.Fire(generate_all)

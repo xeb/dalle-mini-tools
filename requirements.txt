@@ -4,3 +4,5 @@ fire
 flask
 pySqsListener
 python-slugify
+slack-sdk
+slack-bolt
