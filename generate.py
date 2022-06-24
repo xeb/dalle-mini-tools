@@ -1,37 +1,40 @@
 #!/usr/bin/env python
 
+import random
+from datetime import datetime
+from functools import partial
+from pathlib import Path
+
 import fire
 import jax
-from datetime import datetime
 import jax.numpy as jnp
-from pathlib import Path
-from dalle_mini import DalleBart, DalleBartProcessor
-from vqgan_jax.modeling_flax_vqgan import VQModel
-from transformers import CLIPProcessor, FlaxCLIPModel
-from flax.jax_utils import replicate
-from functools import partial
-import random
-from slugify import slugify
-from dalle_mini import DalleBartProcessor
-from flax.training.common_utils import shard_prng_key
 import numpy as np
+from dalle_mini import DalleBart, DalleBartProcessor
+from flax.jax_utils import replicate
+from flax.training.common_utils import shard, shard_prng_key
 from PIL import Image
+from slugify import slugify
 from tqdm.notebook import trange
-from flax.training.common_utils import shard
+from transformers import CLIPProcessor, FlaxCLIPModel
+from vqgan_jax.modeling_flax_vqgan import VQModel
 
-class Generator():
+
+class Generator:
     def __init__(self, output_dir="output", clip_scores=False):
         self.output_dir = output_dir
         self.clip_scores = clip_scores
 
-        #DALLE_MODEL = "dalle-mini/dalle-mini/mega-1-fp16:latest"  # can be wandb artifact or 🤗 Hub or local folder or google bucket
         self.DALLE_COMMIT_ID = None
 
-        # if the notebook crashes too often you can use dalle-mini instead by uncommenting below line
-        self.DALLE_MODEL = "dalle-mini/dalle-mini/mini-1:v0"
+        # if the notebook crashes too often you can use dalle-mini instead by
+        # uncommenting below line
+
+        # can be wandb artifact or 🤗 Hub or local folder or google bucket
+        # self.DALLE_MODEL = "dalle-mini/dalle-mini/mini-1:v0"
         self.DALLE_MODEL = "dalle-mini/dalle-mini/mega-1-fp16:latest"
 
         # VQGAN model
+        # https://huggingface.co/dalle-mini/vqgan_imagenet_f16_16384
         self.VQGAN_REPO = "dalle-mini/vqgan_imagenet_f16_16384"
         self.VQGAN_COMMIT_ID = "e93a26e7707683d349bf5d5c41c5b0ef69b677a9"
 
@@ -41,7 +44,10 @@ class Generator():
 
         # Load dalle-mini
         self.model, self.params = DalleBart.from_pretrained(
-            self.DALLE_MODEL, revision=self.DALLE_COMMIT_ID, dtype=jnp.float16, _do_init=False
+            self.DALLE_MODEL,
+            revision=self.DALLE_COMMIT_ID,
+            dtype=jnp.float16,
+            _do_init=False,
         )
 
         # Load VQGAN
@@ -57,20 +63,22 @@ class Generator():
         self.key = jax.random.PRNGKey(self.seed)
 
         print("Creating processor...")
-        self.processor = DalleBartProcessor.from_pretrained(self.DALLE_MODEL, revision=self.DALLE_COMMIT_ID)
+        self.processor = DalleBartProcessor.from_pretrained(
+            self.DALLE_MODEL, revision=self.DALLE_COMMIT_ID
+        )
 
         # number of predictions per prompt
         self.n_predictions = 8
 
-        # We can customize generation parameters (see https://huggingface.co/blog/how-to-generate)
+        # We can customize generation parameters
+        # (see https://huggingface.co/blog/how-to-generate)
         self.gen_top_k = None
         self.gen_top_p = None
         self.temperature = None
         self.cond_scale = 10.0
 
-
     def generate(self, prompt, clip_scores=False, run_name=None):
-        
+
         # create these partials within the generation runtime
         # model inference
         @partial(jax.pmap, axis_name="batch", static_broadcasted_argnums=(3, 4, 5, 6))
@@ -93,12 +101,11 @@ class Generator():
             return self.vqgan.decode_code(indices, params=params)
 
         print(f"Generating image for {prompt}")
-        prompts = [ prompt ]        
+        prompts = [prompt]
 
         print("Processing prompts...")
         tokenized_prompts = self.processor(prompts)
         tokenized_prompt = replicate(tokenized_prompts)
-
 
         print(f"Prompts: {prompts}\n")
         # generate images
@@ -109,14 +116,16 @@ class Generator():
 
         if run_name is None:
             time = datetime.now().strftime("%Y%m%d-%H%M%S")
-            safeprompt = slugify(prompt, max_length=30, allow_unicode=False, word_boundary=True)
-            run_name = f'run_{time}_{safeprompt}'
+            safeprompt = slugify(
+                prompt, max_length=30, allow_unicode=False, word_boundary=True
+            )
+            run_name = f"run_{time}_{safeprompt}"
             print(f"Using {run_name=}")
 
-        output_dir_ = f'{self.output_dir}/{run_name}'
+        output_dir_ = f"{self.output_dir}/{run_name}"
         Path(output_dir_).mkdir(parents=True, exist_ok=True)
 
-        with open(f'{output_dir_}/prompt.txt', 'w') as f:
+        with open(f"{output_dir_}/prompt.txt", "w") as f:
             for prompt in prompts:
                 f.write(prompt)
 
@@ -134,22 +143,22 @@ class Generator():
                 self.temperature,
                 self.cond_scale,
             )
-            
+
             Path(output_dir_).mkdir(parents=True, exist_ok=True)
-            
+
             # remove BOS
             encoded_images = encoded_images.sequences[..., 1:]
-            
+
             # decode images
             decoded_images = p_decode(encoded_images, self.vqgan_params)
             decoded_images = decoded_images.clip(0.0, 1.0).reshape((-1, 256, 256, 3))
-            
+
             for decoded_img in decoded_images:
                 img = Image.fromarray(np.asarray(decoded_img * 255, dtype=np.uint8))
                 images.append(img)
-                path = f'{output_dir_}/img_{i}.png'
+                path = f"{output_dir_}/img_{i}.png"
                 img.save(path)
-                print(f'Saved to {path=}')
+                print(f"Saved to {path=}")
 
         if clip_scores:
             # CLIP model
@@ -160,7 +169,9 @@ class Generator():
             clip, clip_params = FlaxCLIPModel.from_pretrained(
                 CLIP_REPO, revision=CLIP_COMMIT_ID, dtype=jnp.float16, _do_init=False
             )
-            clip_processor = CLIPProcessor.from_pretrained(CLIP_REPO, revision=CLIP_COMMIT_ID)
+            clip_processor = CLIPProcessor.from_pretrained(
+                CLIP_REPO, revision=CLIP_COMMIT_ID
+            )
             clip_params = replicate(clip_params)
 
             # score images
@@ -187,17 +198,21 @@ class Generator():
             # for i, prompt in enumerate(prompts):
             #     print(f"Prompt: {prompt}\n")
             #     for idx in logits[i].argsort()[::-1]:
-            #         #display(images[idx * p + i])
-            #         # print(f"Score: {jnp.asarray(logits[i][idx], dtype=jnp.float32):.2f}\n")
+            #         display(images[idx * p + i])
+            #         print(
+            #             "Score:"
+            #             + f" {jnp.asarray(logits[i][idx], dtype=jnp.float32):.2f}\n"
+            #         )
             #     print()
 
-
         return output_dir_
+
 
 def main(prompt, output_dir="output", clip_scores=False):
     generator = Generator(output_dir=output_dir, clip_scores=clip_scores)
     dir = generator.generate(prompt)
     return dir
+
 
 if __name__ == "__main__":
     fire.Fire(main)

@@ -1,8 +1,0 @@
-dalle-mini
-git+https://github.com/patil-suraj/vqgan-jax.git
-fire
-flask
-pySqsListener
-python-slugify
-slack-sdk
-slack-bolt
