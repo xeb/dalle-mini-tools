@@ -7,10 +7,10 @@ A (soon-to-be) collection of tools for generating [dalle-mini](https://github.co
 Install the dependencies, then try out the CLI. Try `python generate.py --help` for more.
 
 ```sh
-# If you installed poetry 1.x before, uninstall first
+# If you installed poetry 1.1.x before, uninstall first
 curl -sSL https://install.python-poetry.org | python3 - --uninstall
 
-# Install poetry 1.2.x
+# Install poetry 1.2.x preview
 curl -sSL https://install.python-poetry.org | python3 - --preview
 
 # Create virtual env for this project, install requirements
