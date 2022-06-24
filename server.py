@@ -49,7 +49,11 @@ def output(path):
             return redirect(f"/output/{path}")
 
         return render_template(
-            "template.html", prompt=prompt, imgs=imgs, expected_img_count=expectedimgs, show_links=True
+            "template.html",
+            prompt=prompt,
+            imgs=imgs,
+            expected_img_count=expectedimgs,
+            show_links=True,
         )
 
     else:

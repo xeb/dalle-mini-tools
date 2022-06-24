@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
 import os
-import fire
 import subprocess
-from generate import Generator
+
+import fire
 from sqs_listener import SqsListener
 
 from generate import Generator
@@ -13,20 +13,19 @@ class ImgGenListener(SqsListener):
     def init_model(self, output_dir, clip_scores, postprocess):
         self.generator = Generator(output_dir, clip_scores)
         self.postprocess = postprocess
-        print(f"Initialized model")
+        print("Initialized model")
 
     def postprocessing(self, run_name):
         if not self.postprocess:
-            print(f"Postprocessing not enabled, skipping...")
+            print("Postprocessing not enabled, skipping...")
 
         if os.path.exists("postprocess.sh"):
-            cmds = [ "./postprocess.sh", run_name ]
+            cmds = ["./postprocess.sh", run_name]
             p = subprocess.Popen(cmds, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             out, err = p.communicate()
             if p.returncode != 0:
-                print("-"**5)
+                print("-" ** 5)
                 print(f"Exception\n{err=}\n\n{out=}")
-            
 
     def handle_message(self, body, attr, msg_attr):
         print(f"Processing {body=} {attr=} {msg_attr=}")
@@ -36,12 +35,13 @@ class ImgGenListener(SqsListener):
         self.postprocessing(run_name)
         print(f"Processed! {body=}")
 
+
 def main(
-    output_dir="output", 
-    clip_scores=False, 
+    output_dir="output",
+    clip_scores=False,
     postprocess=True,
-    queue_name="dalle-mini-tools", 
-    error_queue="dalle-mini-tools_errors", 
+    queue_name="dalle-mini-tools",
+    error_queue="dalle-mini-tools_errors",
     region_name="us-east-1",
     interval=1,
 ):

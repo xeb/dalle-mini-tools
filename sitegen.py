@@ -42,8 +42,11 @@ def get_dir_details(path):
     with open(f"{path}/prompt.txt", "r") as rp:
         prompt = rp.read()
 
-    imgs = [ os.path.basename(x) for x in glob.glob(f"{path}/[!f]*.png") ] #a small hack to ignore "final.png"
-    return ( prompt, imgs )
+    imgs = [
+        os.path.basename(x) for x in glob.glob(f"{path}/[!f]*.png")
+    ]  # a small hack to ignore "final.png"
+    return (prompt, imgs)
+
 
 def generate_index(path, show_links=False):
     tl = jinja2.FileSystemLoader(searchpath="./templates")
@@ -53,7 +56,9 @@ def generate_index(path, show_links=False):
     if imgs is None or len(imgs) == 0:
         return None
 
-    return template.render(prompt=prompt, imgs=imgs, expected_img_count=len(imgs), show_links=show_links)
+    return template.render(
+        prompt=prompt, imgs=imgs, expected_img_count=len(imgs), show_links=show_links
+    )
 
 
 if __name__ == "__main__":
