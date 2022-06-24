@@ -1,23 +1,38 @@
 # dalle-mini-tools
-A (soon-to-be) collection of tools for generating [dalle-mini](https://github.com/borisdayma/dalle-mini) images 
 
-# Installation & Usage
-Install the dependencies (`pip install -r requirements.txt`), then try out the CLI. Try `python generate.py --help` for more.
+A (soon-to-be) collection of tools for generating [dalle-mini](https://github.com/borisdayma/dalle-mini) images
 
-```
-pip install -r requirements.txt
+## Installation & Usage
+
+Install the dependencies, then try out the CLI. Try `python generate.py --help` for more.
+
+```sh
+# Install poetry
+curl -sSL https://install.python-poetry.org | python3 -
+
+# Create virtual env for this project, install requirements
+poetry install
+
+# Enter virtual environment
+poetry shell
+
+# Generate an image from text
 python generate.py "a man at a computer trying to generate images"
+
+# Alternatively, rather than enter the venv with `poetry shell`, run directly:
+poetry run python generate.py --help
 ```
 
 and if everything runs OK, you should get images in an `output` directory. Like:
-<br/><br/>
 
 ![dalle-mini Samples](assets/dalle-mini-samples.png)
 
-# Purpose
+## Purpose
+
 This is repository is a collection of tools for doing inference against dalle-mini and dalle-mega.
 
-# What is in this project?
+## What is in this project?
+
 To date, the project contains:
 
 * __`generate.py`__ is a command-line interface for generating images. This has no dependencies.
@@ -26,5 +41,10 @@ To date, the project contains:
 * __`worker.py`__ is a worker process that listens to a SQS queue and then runs the model (via `generate.py`)
 * __`request.py`__ is a command-line tool (and library used by `server.py`) for sending requests to the SQS queue. The server depends on this.
 
-More to come...
+## Development notes
 
+- Autoformat python files with `poetry run make lint`
+- Installs `ipywidgets` to avoid a tqdm error: `AttributeError: 'tqdm_notebook' object has no attribute 'disp'`
+- Installs `tokenizers` 0.11.6 to support running on Apple silicon (0.12.x isn't working)
+
+More to come...
