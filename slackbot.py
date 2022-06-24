@@ -18,7 +18,7 @@ app = App(token=SLACK_BOT_TOKEN)
 
 
 @app.event("app_mention")
-def mention_handler(body, say, logger):
+def mention_handler_app_mention(body, say, logger):
     event = body["event"]
     thread_ts = event.get("thread_ts", None) or event["ts"]
     prompt = (
@@ -54,7 +54,7 @@ def mention_handler(body, say, logger):
 
 
 @app.event("message")
-def mention_handler(body, say):
+def mention_handler_message(body, say):
     event = body["event"]
     thread_ts = event.get("thread_ts", None) or event["ts"]
     if "text" not in event:
