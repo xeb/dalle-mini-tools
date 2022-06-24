@@ -46,5 +46,6 @@ To date, the project contains:
 - Autoformat python files with `poetry run make lint`
 - Installs `ipywidgets` to avoid a tqdm error: `AttributeError: 'tqdm_notebook' object has no attribute 'disp'`
 - Installs `tokenizers` 0.11.6 to support running on Apple silicon (0.12.x isn't working)
+- You may need to `pip install --upgrade "jax[cuda]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html` to get NVIDIA GPU support; will see how to do this in Poetry later
 
 More to come...

@@ -8,6 +8,7 @@ gen.sh
 wandb/
 .fuse_*
 creds.sh
+.vscode/
 
 # ignore upscaling tools for now
 upscale.sh

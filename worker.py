@@ -13,6 +13,7 @@ class ImgGenListener(SqsListener):
     def init_model(self, output_dir, clip_scores, postprocess):
         self.generator = Generator(output_dir, clip_scores)
         self.postprocess = postprocess
+        print(f"Initialized model")
 
     def postprocessing(self, run_name):
         if not self.postprocess:
