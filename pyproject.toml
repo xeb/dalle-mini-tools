@@ -6,7 +6,7 @@ build-backend = "poetry.masonry.api"
 name = "dalle-mini-tools"
 version = "0.1.0"
 description = "A collection of tools for generating dalle-mini images"
-authors = ["Mark Kockerbeck"]
+authors = ["Mark Kockerbeck","Matt Mollison"]
 
 [tool.poetry.dependencies]
 dalle-mini = "^0.1.1"

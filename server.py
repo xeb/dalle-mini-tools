@@ -31,9 +31,14 @@ def output(path):
     print(f"Handling {path=}")
     if os.path.basename(path) == "index.html":
         run_name = os.path.dirname(path).replace(os.path.basename(path), "")
+        print(f"Handling {run_name=}")
         ddir = os.path.join("output", os.path.dirname(path))
+
+        expectedimgs = 8
+
         if not os.path.exists(ddir):
             # Not generated yet, keep waiting
+            time.sleep(1)
             return render_template("refresh.html", run_name=run_name)
 
         print(f"Processing {ddir}")
@@ -44,8 +49,9 @@ def output(path):
             return redirect(f"/output/{path}")
 
         return render_template(
-            "template.html", prompt=prompt, imgs=imgs, expected_img_count=8
+            "template.html", prompt=prompt, imgs=imgs, expected_img_count=expectedimgs, show_links=True
         )
+
     else:
         return send_from_directory("output", path)
 
