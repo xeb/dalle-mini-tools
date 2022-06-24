@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 
-import os
-import fire
 import glob
-import jinja2
+import os
 from pathlib import Path
+
+import fire
+import jinja2
+
 
 def generate_all(output_dir="output"):
     print(f"Processing {output_dir}")
@@ -29,6 +31,7 @@ def generate_all(output_dir="output"):
 
             print(f"Wrote {path=}/index.html")
 
+
 def get_dir_details(path):
     prompt_path = f"{path}/prompt.txt"
     if os.path.exists(prompt_path) is False:
@@ -39,8 +42,9 @@ def get_dir_details(path):
     with open(f"{path}/prompt.txt", "r") as rp:
         prompt = rp.read()
 
-    imgs = [ os.path.basename(x) for x in glob.glob(f'{path}/*.png') ]
-    return ( prompt, imgs )
+    imgs = [os.path.basename(x) for x in glob.glob(f"{path}/*.png")]
+    return (prompt, imgs)
+
 
 def generate_index(path):
     tl = jinja2.FileSystemLoader(searchpath="./templates")
@@ -51,6 +55,7 @@ def generate_index(path):
         return None
 
     return template.render(prompt=prompt, imgs=imgs, expected_img_count=len(imgs))
+
 
 if __name__ == "__main__":
     fire.Fire(generate_all)
