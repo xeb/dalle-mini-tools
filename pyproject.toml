@@ -23,7 +23,7 @@ slack-bolt = "^1.14.0"
 tqdm = "^4.64.0"
 jaxlib = [
     {platform = 'linux', markers = "platform_machine == 'x86_64'", url = "https://storage.googleapis.com/jax-releases/cuda11/jaxlib-0.3.10+cuda11.cudnn82-cp310-none-manylinux2014_x86_64.whl"},
-    {platform = 'darwin', markers="platform_machine == 'arm64'", url = "https://storage.googleapis.com/jax-releases/mac/jaxlib-0.3.10-cp310-none-macosx_11_0_arm64.whl"},
+    {platform = 'darwin', markers = "platform_machine == 'arm64'", url = "https://storage.googleapis.com/jax-releases/mac/jaxlib-0.3.10-cp310-none-macosx_11_0_arm64.whl"},
  ]
 
 [tool.poetry.dev-dependencies]
@@ -40,10 +40,3 @@ preview = true
 
 [tool.isort]
 profile = "black"
-sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
-multi_line_output = 3
-include_trailing_comma = true
-force_grid_wrap = 0
-use_parentheses = true
-ensure_newline_before_comments = true
-line_length = 88
