@@ -27,9 +27,9 @@ def mention_handler_app_mention(body, say, logger):
     print(f"Generating {prompt=}")
     # start = time.time()
     rundir = send_queue_request(prompt)
-    say(text="On it!", thread_ts=thread_ts)
+    #say(text="On it!", thread_ts=thread_ts)
 
-    max_t = 8000000  # my 2080Ti can generate from SQS to final image in: 1672800 ticks
+    max_t = 16000000  # my 2080Ti can generate from SQS to final image in: 1672800 ticks
     for i in tqdm(range(max_t)):
         if i % 100000 == 0:
             print(f"Checking {rundir} {i}/{max_t}")
@@ -37,6 +37,7 @@ def mention_handler_app_mention(body, say, logger):
         if os.path.exists(f"output/{rundir}/final.png"):
             img = f"https://dalle-mini-tools.xeb.ai/output/{rundir}/final.png"
             print(f"Found {img}")
+            logger.info(f"Found {img}")
             say(img)
 
             # say(img, thread_ts=thread_ts)
