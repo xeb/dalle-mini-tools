@@ -1886,7 +1886,7 @@ notebook = ">=4.4.1"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.10,<3.11"
-content-hash = "cc754323bb87ce6a022866c459a737a454d7df0899858876a79249ab67f8b4cc"
+content-hash = "ffc8477dda2959109689e5048d13ef58d0243b7af916f9533345f6fe1219dc52"
 
 [metadata.files]
 absl-py = [
