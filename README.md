@@ -6,6 +6,8 @@ A (soon-to-be) collection of tools for generating [dalle-mini](https://github.co
 
 Install the dependencies, then try out the CLI. Try `python generate.py --help` for more.
 
+Important: if you change the dependencies in `pyproject.toml` you must run `poetry update` to update the lockfile `poetry.lock`. This is how poetry updates the virtual environment. Commit changes to both of these files to the repo.
+
 ```sh
 # If you installed poetry 1.1.x before, uninstall first
 curl -sSL https://install.python-poetry.org | python3 - --uninstall
@@ -26,7 +28,7 @@ python generate.py "a man at a computer trying to generate images"
 poetry run python generate.py --help
 ```
 
-and if everything runs OK, you should get images in an `output` directory. Like:
+If everything runs OK, you should get images in an `output` directory. Like:
 
 ![dalle-mini Samples](assets/dalle-mini-samples.png)
 
