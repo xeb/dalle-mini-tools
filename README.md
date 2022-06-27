@@ -2,13 +2,46 @@
 
 A (soon-to-be) collection of tools for generating [dalle-mini](https://github.com/borisdayma/dalle-mini) images
 
+## Purpose
+
+This is repository is a collection of tools for doing inference against dalle-mini and dalle-mega.
+
 ## Installation & Usage
 
-Install the dependencies, then try out the CLI. Try `python generate.py --help` for more.
+Install the dependencies, then try out the CLI. Once installed, try `python generate.py --help` for more.
+
+Important: Dependencies are specified in `pyproject.toml`. If you update the dependencies, run `poetry update` to update the lockfile `poetry.lock` and commit the changes to these two files. This is how poetry maintains the project's virtual environment.
+
+There are two ways to install:
+
+1. Using pip
+1. Using poetry
+
+Once installed, if everything runs OK, you should get images in an `output` directory. Like:
+
+![dalle-mini Samples](assets/dalle-mini-samples.png)
+
+### pip install
 
 ```sh
-# If you installed poetry 1.1.x before, uninstall first
-curl -sSL https://install.python-poetry.org | python3 - --uninstall
+# create a virtual environment with Python 3.10, and activate it
+
+# install the project using the state of the code in the `main` branch
+# you can replace `main` with any branch name or commit sha
+python -m pip install git+ssh://git@github.com/xeb/dalle-mini-tools.git@main
+
+# install the project using the current state of your local code
+python -m pip install /path/to/dalle-mini-tools
+
+# Generate an image from text
+python generate.py "a man at a computer trying to generate images"
+```
+
+### poetry install
+
+```sh
+# # If you installed poetry 1.1.x before, uninstall first
+# curl -sSL https://install.python-poetry.org | python3 - --uninstall
 
 # Install poetry 1.2.x preview
 curl -sSL https://install.python-poetry.org | python3 - --preview
@@ -25,14 +58,6 @@ python generate.py "a man at a computer trying to generate images"
 # Alternatively, rather than enter the venv with `poetry shell`, run directly:
 poetry run python generate.py --help
 ```
-
-and if everything runs OK, you should get images in an `output` directory. Like:
-
-![dalle-mini Samples](assets/dalle-mini-samples.png)
-
-## Purpose
-
-This is repository is a collection of tools for doing inference against dalle-mini and dalle-mega.
 
 ## What is in this project?
 
