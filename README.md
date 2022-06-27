@@ -2,6 +2,10 @@
 
 A (soon-to-be) collection of tools for generating [dalle-mini](https://github.com/borisdayma/dalle-mini) images
 
+## Purpose
+
+This is repository is a collection of tools for doing inference against dalle-mini and dalle-mega.
+
 ## Installation & Usage
 
 Install the dependencies, then try out the CLI. Once installed, try `python generate.py --help` for more.
@@ -54,10 +58,6 @@ python generate.py "a man at a computer trying to generate images"
 # Alternatively, rather than enter the venv with `poetry shell`, run directly:
 poetry run python generate.py --help
 ```
-
-## Purpose
-
-This is repository is a collection of tools for doing inference against dalle-mini and dalle-mega.
 
 ## What is in this project?
 
