@@ -49,10 +49,15 @@ def get_dir_details(path):
 
 
 def generate_index(path, show_links=False):
-    tl = jinja2.FileSystemLoader(searchpath="./templates")
+    tmplp = "./templates"
+    if not os.path.exists(tmplp):
+        tmplp = "./dalle_mini_tools/templates"
+    
+    tl = jinja2.FileSystemLoader(searchpath=tmplp)
     te = jinja2.Environment(loader=tl)
     template = te.get_template("template.html")
     prompt, imgs = get_dir_details(path)
+
     if imgs is None or len(imgs) == 0:
         return None
 

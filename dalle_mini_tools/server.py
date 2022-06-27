@@ -11,7 +11,6 @@ from sitegen import get_dir_details
 
 flaskapp = Flask("dalle-mini")
 
-
 @flaskapp.route("/", methods=["POST", "GET"])
 def root():
     if request.method == "GET":
