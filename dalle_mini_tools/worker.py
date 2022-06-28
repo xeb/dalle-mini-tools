@@ -10,22 +10,26 @@ from generate import Generator
 
 
 class ImgGenListener(SqsListener):
-    def init_model(self, output_dir, clip_scores, postprocess):
+    def init_model(self, output_dir, clip_scores, postprocess, postprocess_cwd):
         self.generator = Generator(output_dir, clip_scores)
         self.postprocess = postprocess
+        self.postprocess_cwd = postprocess_cwd
         print("Initialized model")
 
     def postprocessing(self, run_name):
-        if not self.postprocess:
+        if not self.postprocess or len(self.postprocess) == 0:
             print("Postprocessing not enabled, skipping...")
+            return
 
-        if os.path.exists("postprocess.sh"):
-            cmds = ["./postprocess.sh", run_name]
-            p = subprocess.Popen(cmds, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if os.path.exists(self.postprocess):
+            cmds = [f"{self.postprocess}", run_name]
+            p = subprocess.Popen(cmds, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=self.postprocess_cwd)
             out, err = p.communicate()
             if p.returncode != 0:
-                print("-" ** 5)
                 print(f"Exception\n{err=}\n\n{out=}")
+            print(f"Postprocess complete for {run_name=}")
+        else:
+            print(f"Skipping postprocessing as {self.postprocess=} does not exist")
 
     def handle_message(self, body, attr, msg_attr):
         print(f"Processing {body=} {attr=} {msg_attr=}")
@@ -39,7 +43,8 @@ class ImgGenListener(SqsListener):
 def main(
     output_dir="output",
     clip_scores=False,
-    postprocess=True,
+    postprocess="",
+    postprocess_cwd="",
     queue_name="dalle-mini-tools",
     error_queue="dalle-mini-tools_errors",
     region_name="us-east-1",
@@ -51,7 +56,7 @@ def main(
         queue_name, error_queue=error_queue, region_name=region_name, interval=interval
     )
 
-    listener.init_model(output_dir, clip_scores, postprocess)
+    listener.init_model(output_dir, clip_scores, postprocess, postprocess_cwd)
     listener.listen()
 
 

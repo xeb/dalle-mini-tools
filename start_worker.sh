@@ -1,5 +1,5 @@
 #!/bin/bash
-source ./venv/bin/activate
-cd dalle_mini_tools
-python worker.py
-cd ..
+python dalle_mini_tools/worker.py \
+    --postprocess="./postprocess.sh" \
+    --postprocess_cwd="./" \
+    --output_dir="./output"

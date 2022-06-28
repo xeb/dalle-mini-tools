@@ -11,6 +11,8 @@ from sitegen import get_dir_details
 
 flaskapp = Flask("dalle-mini")
 
+# TODO: make output a command line argument
+
 @flaskapp.route("/", methods=["POST", "GET"])
 def root():
     if request.method == "GET":
@@ -31,7 +33,7 @@ def output(path):
     if os.path.basename(path) == "index.html":
         run_name = os.path.dirname(path).replace(os.path.basename(path), "")
         print(f"Handling {run_name=}")
-        ddir = os.path.join("output", os.path.dirname(path))
+        ddir = os.path.join("./output", os.path.dirname(path))
 
         expectedimgs = 8
 
@@ -56,12 +58,10 @@ def output(path):
         )
 
     else:
-        return send_from_directory("output", path)
-
+        return send_from_directory("./output", path)
 
 def main(port=2088):
     flaskapp.run(host="0.0.0.0", port=port)
-
 
 if __name__ == "__main__":
     fire.Fire(main)

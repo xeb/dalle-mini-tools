@@ -2,22 +2,25 @@
 
 import os
 import re
+import fire
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 from tqdm import tqdm
 
 from request import send as send_queue_request
 
-# import time
-
 SLACK_BOT_TOKEN = os.environ["SLACK_BOT_TOKEN"]
 SLACK_APP_TOKEN = os.environ["SLACK_APP_TOKEN"]
+OUTPUT_DIR = "./output"
+BASE_URI = "https://example.com/output"
 
 app = App(token=SLACK_BOT_TOKEN)
 
-
 @app.event("app_mention")
 def mention_handler_app_mention(body, say, logger):
+    global OUTPUT_DIR
+    global BASE_URI
+
     event = body["event"]
     thread_ts = event.get("thread_ts", None) or event["ts"]
     channel = event.get("channel", None) or event["channel"]
@@ -29,7 +32,6 @@ def mention_handler_app_mention(body, say, logger):
     
     app.client.reactions_add(channel=channel, timestamp=thread_ts, name="thumbsup")
     print(f"Generating {prompt=}")
-    # start = time.time()
     rundir = send_queue_request(prompt)
 
     max_t = 16000000  # my 2080Ti can generate from SQS to final image in: 1672800 ticks
@@ -37,24 +39,11 @@ def mention_handler_app_mention(body, say, logger):
         if i % 100000 == 0:
             print(f"Checking {rundir} {i}/{max_t}")
 
-        if os.path.exists(f"output/{rundir}/final.png"):
-            img = f"https://dalle-mini-tools.xeb.ai/output/{rundir}/final.png"
+        if os.path.exists(f"{OUTPUT_DIR}/{rundir}/final.png"):
+            img = f"{BASE_URI}/{rundir}/final.png"
             print(f"Found {img}")
             logger.info(f"Found {img}")
             say(img)
-
-            # https://api.slack.com/reference/messaging/payload
-            # https://github.com/slackapi/bolt-python/blob/bdba69a292f626cb1efc3c1f8fbdf48804b97665/docs/_basic/sending_messages.md
-
-            # say(img, thread_ts=thread_ts)
-            # end = time.time()
-            # duration = start - end
-            # # if duration >= 86400:
-            # # 	days = int(duration / 86400)
-            # elapsed = time.strftime(
-            #     "%H hours, %M minutes, %S seconds", time.gmtime(duration)
-            # )
-            # say(f"Took me {elapsed}.", thread_ts=thread_ts)
             return
 
     say(text="...I gave up.", thread_ts=thread_ts)
@@ -104,7 +93,18 @@ def mention_handler_message(body, say):
             thread_ts=thread_ts,
         )
 
+def main(output_dir="", base_uri=""):
+    global OUTPUT_DIR
+    global BASE_URI
 
-if __name__ == "__main__":
+    if output_dir != "":
+        OUTPUT_DIR = output_dir
+    
+    if base_uri != "":
+        BASE_URI = base_uri
+
     handler = SocketModeHandler(app, SLACK_APP_TOKEN)
     handler.start()
+
+if __name__ == "__main__":
+    fire.Fire(main)
