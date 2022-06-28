@@ -1,6 +1,6 @@
 # Repo specific things
 img_*.png
-dalle_mini_tools/output/
+output/
 upload.sh
 reverseproxy.sh
 gen.sh
