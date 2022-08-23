@@ -35,7 +35,7 @@ class ImgGenListener(SqsListener):
         print(f"Processing {body=} {attr=} {msg_attr=}")
         prompt = body["prompt"]
         run_name = body["run_name"]
-        self.generator.generate(prompt=prompt, run_name=run_name)
+        self.generator.generate(prompt=prompt, run_name=run_name, number=1)
         self.postprocessing(run_name)
         print(f"Processed! {body=}")
 

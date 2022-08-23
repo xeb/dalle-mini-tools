@@ -25,13 +25,8 @@ class StableDiffusionGenerator:
         self.model = self.model.to("cuda")
 
 
-    def generate(self, prompt, clip_scores=False, run_name=None):
-
-        image = None
-
-        with autocast("cuda"):
-            image = self.model(prompt)["sample"][0]
-        
+    def generate(self, prompt, clip_scores=False, run_name=None, number=1):
+        image = None      
         safeprompt = prompt
 
         if run_name is None:
@@ -48,14 +43,18 @@ class StableDiffusionGenerator:
         with open(f"{output_dir_}/prompt.txt", "w") as f:
             f.write(prompt)
 
-        path = f"{output_dir_}/img_0.png"
-        image.save(path)
-        print(f"Saved to {path=}")
+        for i in range(0, number):
+            with autocast("cuda"):
+                image = self.model(prompt)["sample"][0]
+
+            path = f"{output_dir_}/img_{i}.png"
+            image.save(path)
+            print(f"Saved to {path=}")
 
 
-def main(prompt, output_dir="output", clip_scores=False):
+def main(prompt, output_dir="output", clip_scores=False, number=1):
     generator = StableDiffusionGenerator(output_dir=output_dir, clip_scores=clip_scores)
-    dir = generator.generate(prompt)
+    dir = generator.generate(prompt, number=number)
     return dir
 
 
