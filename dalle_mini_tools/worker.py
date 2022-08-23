@@ -6,12 +6,12 @@ import subprocess
 import fire
 from sqs_listener import SqsListener
 
-from generate import Generator
+from generate_stable_diffusion import StableDiffusionGenerator
 
 
 class ImgGenListener(SqsListener):
     def init_model(self, output_dir, clip_scores, postprocess, postprocess_cwd):
-        self.generator = Generator(output_dir, clip_scores)
+        self.generator = StableDiffusionGenerator(output_dir, clip_scores)
         self.postprocess = postprocess
         self.postprocess_cwd = postprocess_cwd
         print("Initialized model")

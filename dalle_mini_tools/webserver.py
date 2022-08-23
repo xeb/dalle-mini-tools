@@ -35,7 +35,7 @@ def output(path):
         print(f"Handling {run_name=}")
         ddir = os.path.join("./output", os.path.dirname(path))
 
-        expectedimgs = 8
+        expectedimgs = 1 # only doing 1 for Stable Diffusion for now
 
         if not os.path.exists(ddir):
             # Not generated yet, keep waiting
