@@ -1,14 +1,12 @@
 # dalle-mini-tools
 
-A (soon-to-be) collection of tools for generating [dalle-mini](https://github.com/borisdayma/dalle-mini) images
+A collection of tools for generating [dalle-mini](https://github.com/borisdayma/dalle-mini) and [diffuers](https://github.com/huggingface/diffusers) images (e.g. [Stable Diffusion](https://github.com/huggingface/diffusers/blob/main/src/diffusers/pipelines/stable_diffusion/pipeline_stable_diffusion.py))
 
 ## Purpose
-
-This is repository is a collection of tools for doing inference against dalle-mini and dalle-mega.
+The goal of this project is primarily research and building tooling around modern, public clip-guided diffusion methods and models.
 
 ## Installation & Usage
-
-Install the dependencies, then try out the CLI. Once installed, try `python generate.py --help` for more.
+Install the dependencies, then try out the CLI. Once installed, try `python dalle_mini_tools/generate_stable_diffusion.py --help` for more.
 
 Important: Dependencies are specified in `pyproject.toml`. If you update the dependencies, run `poetry update` to update the lockfile `poetry.lock` and commit the changes to these two files. This is how poetry maintains the project's virtual environment.
 
@@ -63,7 +61,8 @@ poetry run python generate.py --help
 
 To date, the project contains:
 
-* __`generate.py`__ is a command-line interface for generating images. This has no dependencies.
+* __`generate.py`__ is a command-line interface for generating images using the dalle-mini model. This has no dependencies.
+* __`generate_stable_diffusion.py`__ is a command-line interface for generating images using [Stable Diffusion](https://github.com/huggingface/diffusers/blob/main/src/diffusers/pipelines/stable_diffusion/pipeline_stable_diffusion.py). This has no dependencies.
 * __`sitegen.py`__ is a static website generator that uses `templates/template.html` to create index pages per the specified `output_dir` so you can upload results to a webserver
 * __`server.py`__ is a Flask web server to host requests. This depends the `request.py` library and on having a `worker.py` running since requests are queued into an SQS queue.
 * __`worker.py`__ is a worker process that listens to a SQS queue and then runs the model (via `generate.py`)
