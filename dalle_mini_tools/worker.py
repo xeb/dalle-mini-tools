@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import re
 import subprocess
 
 import fire
@@ -35,7 +36,18 @@ class ImgGenListener(SqsListener):
         print(f"Processing {body=} {attr=} {msg_attr=}")
         prompt = body["prompt"]
         run_name = body["run_name"]
-        self.generator.generate(prompt=prompt, run_name=run_name, number=1)
+
+        n = 4
+
+        m = re.search(r"n=(\d+) .*", prompt)
+        if m and m.group(1):
+            n = int(m.group(1))
+            prompt = prompt.replace(f"n={n} ", "")
+
+        if n > 16:
+            n = 16
+
+        self.generator.generate(prompt=prompt, run_name=run_name, number=n)
         self.postprocessing(run_name)
         print(f"Processed! {body=}")
 
